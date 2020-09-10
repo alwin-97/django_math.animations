@@ -253,12 +253,14 @@ def home_details(request, internship, topic, subtopic):
     subtopic_request = Subtopic.objects.filter(topic_id__internship_id_id=selected_internship.pk).filter(
         topic_id__topic_url=topic).get(
         subtopic_url=subtopic)
+    #print(subtopic)
     id = subtopic_request.pk
     subtopic_details = Subtopic.objects.get(id=id)
     contributor = ""
     ver = ""
     try:
-        data = Data.objects.all()
+        data = Data.objects.all().order_by('data_order')
+        #print(data)
         imagesize = ImageFormatting.objects.all()
     except Data.DoesNotExist:
         data = None
@@ -460,10 +462,10 @@ def edit_text(request, t_id, id):
 
 @login_required
 def edit_media(request, t_id, id):
-    if request.user.is_authenticated and not request.user.is_staff and not request.user.is_superuser:
+    if request.user.is_authenticated or request.user.is_staff: #and not request.user.is_superuser:
         instance = Data.objects.get(data_hash=id)
         subtopic = Subtopic.objects.get(id=instance.subtopic_id.pk)
-        if request.user.id == subtopic.assigned_user_id_id and subtopic.subtopic_status != 'ACCEPTED':
+        if (request.user.id == subtopic.assigned_user_id_id and subtopic.subtopic_status != 'ACCEPTED') or request.user.is_staff :
             form_text = data()
             form_image = change_image()
             from_video = change_video()
@@ -669,28 +671,32 @@ def moveUpData(request, id):
             t_id = instance.subtopic_id.subtopic_hash
             instance.data_order = instance.data_order - 1
             instance.save()
-            current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
-                                                data_order=instance.data_order).first()
-            current_order.data_order = current_order.data_order + 1
-            current_order.save()
+            try:
+                current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
+                                                    data_order=instance.data_order).exclude(pk=instance.pk).first()
+                current_order.data_order = current_order.data_order + 1
+                current_order.save()
+            except:
+                instance.data_order = instance.data_order + 1
+                instance.save()
             return redirect('add-submission-subtopic', t_id)
-
         elif request.user.is_staff:
             t_id = instance.subtopic_id.subtopic_hash
             instance.data_order = instance.data_order - 1
             instance.save()
-            current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
-                                                data_order=instance.data_order).first()
-            current_order.data_order = current_order.data_order + 1
-            current_order.save()
+            try:
+                current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
+                                                    data_order=instance.data_order).exclude(pk=instance.pk).first()
+                current_order.data_order = current_order.data_order + 1
+                current_order.save()
+            except:
+                instance.data_order = instance.data_order + 1
+                instance.save()
             return redirect('review-submissions-subtopic', t_id)
-
         else:
             return redirect('dashboard')
-
     else:
         return redirect('dashboard')
-
 
 @login_required
 def moveDownData(request, id):
@@ -700,25 +706,30 @@ def moveDownData(request, id):
             t_id = instance.subtopic_id.subtopic_hash
             instance.data_order = instance.data_order + 1
             instance.save()
-            current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
-                                                data_order=instance.data_order).first()
-            current_order.data_order = current_order.data_order - 1
-            current_order.save()
+            try:
+                current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
+                                                    data_order=instance.data_order).exclude(pk=instance.pk).first()
+                current_order.data_order = current_order.data_order - 1
+                current_order.save()
+            except:
+                instance.data_order = instance.data_order - 1
+                instance.save()
             return redirect('add-submission-subtopic', t_id)
-
         elif request.user.is_staff:
             t_id = instance.subtopic_id.subtopic_hash
             instance.data_order = instance.data_order + 1
             instance.save()
-            current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
-                                                data_order=instance.data_order).first()
-            current_order.data_order = current_order.data_order - 1
-            current_order.save()
+            try:
+                current_order = Data.objects.filter(subtopic_id=instance.subtopic_id,
+                                                    data_order=instance.data_order).exclude(pk=instance.pk).first()
+                current_order.data_order = current_order.data_order - 1
+                current_order.save()
+            except:
+                instance.data_order = instance.data_order + 1
+                instance.save()
             return redirect('review-submissions-subtopic', t_id)
-
         else:
             return redirect('dashboard')
-
     else:
         return redirect('dashboard')
 

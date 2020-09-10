@@ -54,6 +54,14 @@
 
     <div id="container"> <!--style="margin-left: 5%;margin-right: 10%" >-->
         <div class="container"><!--class="row">-->
+            {% if contributor.professor == NULL %}
+            <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                The contents of this lecture notes are yet to be edited by mentors and get verified by a Professor.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+             {% endif %}
             <!--<div id="toc_container" style="font-size: small; max-width: 20%; right: 2%;">
                  <b style="color: blue">Table of Contents</b>
                 <div   class='js-toc col' data-spy="affix"></div>
@@ -62,10 +70,11 @@
                 <!--<div class="js-toc-content">-->
                     <table>
                         {% if subtopic.subtopic_status == 'ACCEPTED' %}
-                            <thead class="thread-light">
+                        <thead class="thread-light">
                             <tr>
                                 <th>
                                     <h1>{{ subtopic.subtopic_name }}</h1>
+                                    <hr>
                                 </th>
                             </tr>
                             <tr>
@@ -73,17 +82,16 @@
 
                                 </td>
                             </tr>
-                            </thead>
+                        </thead>
                         {% endif %}
                         <tbody style="font-size: medium;">
                         {% for data in datas %}
                             {% if subtopic.subtopic_status == 'ACCEPTED' and data.subtopic_id_id == subtopic.id and data.subtopic_id.topic_id.internship_id.internship_status == 'COMPLETED' %}
-                                <tr>
+                            <tr>
                                     {% if data.data_content != "NULL" %}
                                         <td style="width:100%" class="cell-breakWord">
-                                            <p></p>
-                                            {{ data.data_content |safe }}
-
+                                            <p>{{ data.data_content |safe }}</p>
+                                            <p class="text-white"><b>{{ data.data_order }}</b></p>
                                         </td>
                                     {% endif %}
                                 </tr>
@@ -96,8 +104,7 @@
                                                     <img src="{{ data.data_image.url }}" width="{{ i.image_width }}"
                                                          style="display:block; margin:0 auto;" alt="Image not loaded">
                                                     {% if data.data_caption != None %}
-                                                        <p align="center"
-                                                           style="font-size: 15px">{{ data.data_caption }}</p>
+                                                        <p align="center" style="font-size: 15px">{{ data.data_caption }}</p>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endfor %}
@@ -122,7 +129,9 @@
                         {% endfor %}
                         {% if subtopic.subtopic_status != 'ACCEPTED' %}
                             <br>
+                            <div style="margin-bottom: 15%;">
                             <h4 class="text-center text-muted"><u>Submission Under Review</u></h4>
+                            </div>
                             <br>
                         {% endif %}
                         </tbody>
@@ -147,7 +156,7 @@
                             </tr>
                         </table>
                         <hr>
-                        <i>The following notes and their corrosponding animations was created by the above-mentioned
+                        <i>The following notes and their corrosponding animations were created by the above-mentioned
                             contributor and is freely avilable under CC licence.</i>
                     </div>
                 {% endif %}
